@@ -14,7 +14,8 @@ import Register from './pages/register/page.tsx';
 import Profile from './pages/profile/page.tsx';
 import Post from './pages/post/page.tsx';
 import MyPhotos from './pages/my-photos/page.tsx';
-import ProtectRoute from './utils/protectRoute.tsx';
+import { AuthContextProvider } from './context/AuthContext.tsx';
+import ProtectRoute from './utils/ProtectRoute.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -33,6 +34,8 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <AuthContextProvider>
+      <RouterProvider router={router} />
+    </AuthContextProvider>
   </StrictMode>
 );

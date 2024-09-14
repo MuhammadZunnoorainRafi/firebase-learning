@@ -11,31 +11,27 @@ import {
 type AuthContext = {
   user: User | null;
   isLoading: boolean;
-  isLoggedIn: boolean;
 };
 
 const AuthContext = createContext<AuthContext | undefined>(undefined);
 
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   useEffect(() => {
     setIsLoading(true);
     const unsubscribed = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser(user);
-      } else {
-        setIsError(true);
       }
     });
-
+    setIsLoading(false);
     return () => {
       unsubscribed();
     };
   }, []);
   return (
-    <AuthContext.Provider value={{ user, isLoading, isLoggedIn: !isError }}>
+    <AuthContext.Provider value={{ user, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
