@@ -17,10 +17,12 @@ import { RegType } from '@/utils/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import ErrorMessage from '../shared/ErrorMessage';
 import CardWrapper from './CardWrapper';
+import { useNavigate } from 'react-router-dom';
 
 function RegisterForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const form = useForm<RegType>({
     resolver: zodResolver(RegSchema),
@@ -33,13 +35,16 @@ function RegisterForm() {
 
   const formSubmit = async (formData: RegType) => {
     setErrorMessage('');
-    const { email, password } = formData;
+    const { name, email, password } = formData;
     try {
       setIsLoading(true);
-      const res = await register(email, password);
-      if (!res.user) {
+      const res = await register(name, email, password);
+
+      if (!res.success) {
         setErrorMessage('User not registered, please try later.');
+        return;
       }
+      navigate('/');
     } catch (error) {
       console.log(error);
     } finally {

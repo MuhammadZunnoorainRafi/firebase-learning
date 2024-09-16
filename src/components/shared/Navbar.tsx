@@ -9,7 +9,7 @@ const navlinks = [
 
 function Navbar() {
   return (
-    <div className="px-10 py-3 flex items-center justify-between">
+    <div className="px-10 py-3 flex items-center justify-between border-b">
       <Button asChild variant="ghost" className="font-bold text-lg">
         <Link to="/">🔥 Firebase</Link>
       </Button>
