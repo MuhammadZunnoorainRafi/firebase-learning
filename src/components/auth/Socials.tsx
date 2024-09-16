@@ -1,4 +1,3 @@
-'use client';
 import { googleSignIn } from '@/actions/auth/auth';
 import { Button } from '../ui/button';
 import { FcGoogle } from 'react-icons/fc';

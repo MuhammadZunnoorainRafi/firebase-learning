@@ -1,5 +1,6 @@
-'use client';
-import React, { useState, useTransition } from 'react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Button } from '../ui/button';
 import {
   Form,
   FormControl,
@@ -9,18 +10,17 @@ import {
   FormMessage,
 } from '../ui/form';
 import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import { useForm } from 'react-hook-form';
-import { RegType } from '@/lib/types';
-import { RegSchema } from '@/lib/schemas';
+
+import { register } from '@/actions/auth/auth';
+import { RegSchema } from '@/utils/schemas';
+import { RegType } from '@/utils/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import CardWrapper from './CardWrapper';
-import { action_register } from '@/actions/auth/register-user';
 import ErrorMessage from '../shared/ErrorMessage';
+import CardWrapper from './CardWrapper';
 
 function RegisterForm() {
   const [errorMessage, setErrorMessage] = useState('');
-  const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<RegType>({
     resolver: zodResolver(RegSchema),
@@ -31,28 +31,34 @@ function RegisterForm() {
     },
   });
 
-  const formSubmit = (formData: RegType) => {
+  const formSubmit = async (formData: RegType) => {
     setErrorMessage('');
-    startTransition(async () => {
-      const res = await action_register(formData);
-      if (res.error) {
-        setErrorMessage(res.error);
+    const { email, password } = formData;
+    try {
+      setIsLoading(true);
+      const res = await register(email, password);
+      if (!res.user) {
+        setErrorMessage('User not registered, please try later.');
       }
-    });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <CardWrapper
       headerLabel="Welcome to Register screen"
       backButtonLabel="Already have an account?"
-      backButtonHref="/auth/login"
+      backButtonHref="/login"
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(formSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="name"
-            disabled={isPending}
+            disabled={isLoading}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name</FormLabel>
@@ -66,7 +72,7 @@ function RegisterForm() {
           <FormField
             control={form.control}
             name="email"
-            disabled={isPending}
+            disabled={isLoading}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Email</FormLabel>
@@ -84,7 +90,7 @@ function RegisterForm() {
           <FormField
             control={form.control}
             name="password"
-            disabled={isPending}
+            disabled={isLoading}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Password</FormLabel>
@@ -95,7 +101,7 @@ function RegisterForm() {
               </FormItem>
             )}
           />
-          <Button disabled={isPending} className="w-full" type="submit">
+          <Button disabled={isLoading} className="w-full" type="submit">
             Submit
           </Button>
         </form>

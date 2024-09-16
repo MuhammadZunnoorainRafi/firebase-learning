@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { LogSchema, RegSchema } from './schemas';
+import { LogSchema, PostSchema, RegSchema } from './schemas';
 
 export type LogType = z.infer<typeof LogSchema>;
 export type RegType = z.infer<typeof RegSchema>;
+export type PostType = z.infer<typeof PostSchema>;

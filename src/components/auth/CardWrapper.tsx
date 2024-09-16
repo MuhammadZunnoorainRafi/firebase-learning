@@ -17,7 +17,7 @@ function CardWrapper({
   children,
 }: Props) {
   return (
-    <Card className=" w-[400px]">
+    <Card className=" w-[400px] mx-auto">
       <CardHeader>
         <h1 className=" text-3xl font-bold font-mono">Login Form</h1>
         <p className="text-xl">{headerLabel}</p>

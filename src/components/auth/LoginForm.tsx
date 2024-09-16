@@ -1,8 +1,10 @@
-'use client';
-
+import { login } from '@/actions/auth/auth';
+import { LogSchema } from '@/utils/schemas';
+import { LogType } from '@/utils/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import ErrorMessage from '../shared/ErrorMessage';
 import { Button } from '../ui/button';
 import {
   Form,
@@ -14,15 +16,11 @@ import {
 } from '../ui/form';
 import { Input } from '../ui/input';
 import CardWrapper from './CardWrapper';
-import { LogType } from '@/utils/types';
-import { LogSchema } from '@/utils/schemas';
-import ErrorMessage from '../shared/ErrorMessage';
-import { login } from '@/actions/auth/auth';
 import Socials from './Socials';
 
 function LoginForm() {
   const [errorMessage, setErrorMessage] = useState('');
-  const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<LogType>({
     resolver: zodResolver(LogSchema),
@@ -33,28 +31,33 @@ function LoginForm() {
   });
 
   const formSubmit = async (formData: LogType) => {
-    const { email, password } = formData;
     setErrorMessage('');
-    startTransition(async () => {
+    const { email, password } = formData;
+    try {
+      setIsLoading(true);
       const res = await login(email, password);
       if (!res.user) {
         setErrorMessage('Not Logged In, please try later.');
       }
-    });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <CardWrapper
       headerLabel="Welcome to login screen!"
       backButtonLabel="Don't have an account?"
-      backButtonHref="/auth/register"
+      backButtonHref="/register"
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(formSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="email"
-            disabled={isPending}
+            disabled={isLoading}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Email</FormLabel>
@@ -72,7 +75,7 @@ function LoginForm() {
           <FormField
             control={form.control}
             name="password"
-            disabled={isPending}
+            disabled={isLoading}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Password</FormLabel>
@@ -83,7 +86,7 @@ function LoginForm() {
               </FormItem>
             )}
           />
-          <Button disabled={isPending} className="w-full" type="submit">
+          <Button disabled={isLoading} className="w-full" type="submit">
             Submit
           </Button>
         </form>
