@@ -23,13 +23,15 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     const unsubscribed = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser(user);
+      } else {
+        setUser(null);
       }
     });
     setIsLoading(false);
     return () => {
       unsubscribed();
     };
-  }, []);
+  }, [user]);
   return (
     <AuthContext.Provider value={{ user, isLoading }}>
       {children}

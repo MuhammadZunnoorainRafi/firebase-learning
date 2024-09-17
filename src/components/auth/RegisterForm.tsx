@@ -40,8 +40,8 @@ function RegisterForm() {
       setIsLoading(true);
       const res = await register(name, email, password);
 
-      if (!res.success) {
-        setErrorMessage('User not registered, please try later.');
+      if (res.error) {
+        setErrorMessage(res.error);
         return;
       }
       navigate('/');

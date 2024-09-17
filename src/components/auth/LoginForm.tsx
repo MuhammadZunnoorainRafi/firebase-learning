@@ -17,10 +17,12 @@ import {
 import { Input } from '../ui/input';
 import CardWrapper from './CardWrapper';
 import Socials from './Socials';
+import { useNavigate } from 'react-router-dom';
 
 function LoginForm() {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const form = useForm<LogType>({
     resolver: zodResolver(LogSchema),
@@ -39,6 +41,7 @@ function LoginForm() {
       if (!res.user) {
         setErrorMessage('Not Logged In, please try later.');
       }
+      navigate('/');
     } catch (error) {
       console.log(error);
     } finally {

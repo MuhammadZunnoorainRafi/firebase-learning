@@ -1,5 +1,7 @@
 import { Link, NavLink } from 'react-router-dom';
 import { Button } from '../ui/button';
+import { useAuthContext } from '@/context/AuthContext';
+import UserButton from '../auth/UserButton';
 
 const navlinks = [
   { href: '/post', name: 'Post' },
@@ -8,6 +10,7 @@ const navlinks = [
 ];
 
 function Navbar() {
+  const { user, isLoading } = useAuthContext();
   return (
     <div className="px-10 py-3 flex items-center justify-between border-b">
       <Button asChild variant="ghost" className="font-bold text-lg">
@@ -28,14 +31,18 @@ function Navbar() {
           </NavLink>
         ))}
       </div>
-      <div className="flex items-center justify-center gap-2">
-        <Button asChild variant="default">
-          <Link to="/login">Login</Link>
-        </Button>
-        <Button asChild variant="secondary">
-          <Link to="/register">Register</Link>
-        </Button>
-      </div>
+      {user ? (
+        <UserButton user={user} isLoading={isLoading} />
+      ) : (
+        <div className="flex items-center justify-center gap-2">
+          <Button asChild variant="default">
+            <Link to="/login">Login</Link>
+          </Button>
+          <Button asChild variant="secondary">
+            <Link to="/register">Register</Link>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

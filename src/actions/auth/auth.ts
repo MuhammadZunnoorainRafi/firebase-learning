@@ -1,4 +1,4 @@
-import { auth } from '@/firebase.config';
+import { auth, db } from '@/firebase.config';
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
@@ -7,6 +7,7 @@ import {
   signOut,
   updateProfile,
 } from 'firebase/auth';
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 
 export const login = (email: string, password: string) => {
   return signInWithEmailAndPassword(auth, email, password);
@@ -18,19 +19,26 @@ export const register = async (
   password: string
 ) => {
   try {
-    await createUserWithEmailAndPassword(auth, email, password);
+    const res = await createUserWithEmailAndPassword(auth, email, password);
     if (auth.currentUser) {
       updateProfile(auth.currentUser, { displayName: name });
     }
+
+    const docRef = doc(db, 'users', res.user.uid);
+    await setDoc(docRef, { name, email, timestamp: serverTimestamp() });
     return { success: true };
-  } catch (error) {
+  } catch (error: unknown) {
     console.log(error);
-    return { success: false };
+    if (error instanceof Error) {
+      return { error: error.message };
+    } else {
+      return { error: 'Internal Server Error' };
+    }
   }
 };
 
 export const logout = () => {
-  signOut(auth);
+  return signOut(auth);
 };
 
 export const googleSignIn = () => {
