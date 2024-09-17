@@ -17,7 +17,7 @@ import {
 import { Input } from '../ui/input';
 import CardWrapper from './CardWrapper';
 import Socials from './Socials';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function LoginForm() {
   const [errorMessage, setErrorMessage] = useState('');
@@ -89,6 +89,12 @@ function LoginForm() {
               </FormItem>
             )}
           />
+          <Link
+            className="text-blue-500 hover:underline mt-1"
+            to="/reset-password"
+          >
+            Forgot password?
+          </Link>
           <Button disabled={isLoading} className="w-full" type="submit">
             Submit
           </Button>

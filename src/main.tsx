@@ -16,12 +16,14 @@ import Post from './pages/post/page.tsx';
 import MyPhotos from './pages/my-photos/page.tsx';
 import { AuthContextProvider } from './context/AuthContext.tsx';
 import ProtectRoute from './utils/ProtectRoute.tsx';
+import ResetPassword from './components/auth/ResetPassword.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Register />} />
+      <Route path="reset-password" element={<ResetPassword />} />
       <Route path="/" element={<ProtectRoute />}>
         <Route index element={<Home />} />
         <Route path="profile" element={<Profile />} />

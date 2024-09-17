@@ -7,7 +7,7 @@ import {
   signOut,
   updateProfile,
 } from 'firebase/auth';
-import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 
 export const login = (email: string, password: string) => {
   return signInWithEmailAndPassword(auth, email, password);
@@ -41,7 +41,18 @@ export const logout = () => {
   return signOut(auth);
 };
 
-export const googleSignIn = () => {
+export const googleSignIn = async () => {
   const googleProvider = new GoogleAuthProvider();
-  return signInWithPopup(auth, googleProvider);
+  const { user } = await signInWithPopup(auth, googleProvider);
+  if (user) {
+    const docRef = doc(db, 'users', user.uid);
+    const userInDb = await getDoc(docRef);
+    if (!userInDb.exists()) {
+      await setDoc(docRef, {
+        name: user.displayName,
+        email: user.email,
+        timestamp: serverTimestamp(),
+      });
+    }
+  }
 };
