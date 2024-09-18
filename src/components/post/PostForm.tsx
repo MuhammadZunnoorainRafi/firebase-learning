@@ -18,9 +18,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { PostType } from '@/utils/types';
+import { Post, PostType } from '@/utils/types';
 import { PostSchema } from '@/utils/schemas';
 import { Textarea } from '../ui/textarea';
+import { useAuthContext } from '@/context/AuthContext';
+import { imageUpload } from './imageUpload';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/firebase.config';
 
 type Props = {
   post?: Post;
@@ -28,29 +32,58 @@ type Props = {
 
 function PostForm({ post }: Props) {
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuthContext();
 
   const form = useForm<PostType>({
     resolver: zodResolver(PostSchema),
     defaultValues: {
-      image: post ? post.image : '',
+      imageUrls: post ? post.imageUrls : undefined,
       title: post ? post.title : '',
       description: post ? post.description : '',
       category: post ? post.category : '',
-      stars: post ? post.stars : '',
-      price: post ? post.price : '',
+      star: post ? post.star : '',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      price: (post ? post.price : '') as any,
     },
   });
 
   const formSubmit = async (formData: PostType) => {
     try {
       setIsLoading(true);
+      const { category, description, star, price, title, imageFiles } =
+        formData;
+      if (!user) {
+        console.log('user not found');
+        return;
+      }
       //  TODO: create product login
+      let imageUrls = undefined;
+      if (imageFiles) {
+        imageUrls = await Promise.all(
+          [...imageFiles].map((image) => imageUpload(image, user))
+        );
+        console.log({ imageUrls });
+      }
+
+      await addDoc(collection(db, 'posts'), {
+        userId: user.uid,
+        title,
+        description,
+        category,
+        star,
+        price,
+        imageUrls,
+        timestamp: serverTimestamp(),
+      });
+      form.reset();
     } catch (error) {
       console.log(error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  console.log(form.getValues('imageFiles'));
 
   return (
     <Card className="max-w-6xl mx-auto mt-4 mb-2">
@@ -67,15 +100,21 @@ function PostForm({ post }: Props) {
           >
             <FormField
               control={form.control}
-              name="image"
+              name="imageFiles"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
                     <Input
                       disabled={isLoading}
                       type="file"
-                      placeholder="Title"
-                      {...field}
+                      multiple={true}
+                      placeholder="Images"
+                      accept=".jpg, .jpeg, .png"
+                      onChange={(event) =>
+                        field.onChange(
+                          event.target.files ? event.target.files : null
+                        )
+                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -139,7 +178,7 @@ function PostForm({ post }: Props) {
             />
             <FormField
               control={form.control}
-              name="stars"
+              name="star"
               render={({ field }) => (
                 <FormItem>
                   <Select

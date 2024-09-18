@@ -11,8 +11,7 @@ export type Post = {
   description: string;
   category: string;
   price: number;
-  userLikes: [];
-  image: string;
-  likes: number;
+  imageUrls: string[];
+  star: string;
   date: Date;
 };
