@@ -1,4 +1,15 @@
+import { useAuthContext } from '@/context/AuthContext';
+import { db } from '@/firebase.config';
+import { PostSchema } from '@/utils/schemas';
+import { Post, PostType } from '@/utils/types';
 import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  addDoc,
+  collection,
+  doc,
+  serverTimestamp,
+  updateDoc,
+} from 'firebase/firestore';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '../ui/button';
@@ -18,19 +29,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { Post, PostType } from '@/utils/types';
-import { PostSchema } from '@/utils/schemas';
 import { Textarea } from '../ui/textarea';
-import { useAuthContext } from '@/context/AuthContext';
 import { imageUpload } from './imageUpload';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/firebase.config';
 
 type Props = {
   post?: Post;
+  fetchAllPosts: () => Promise<void>;
+  onEditChange?: () => void;
 };
 
-function PostForm({ post }: Props) {
+function PostForm({ post, fetchAllPosts, onEditChange }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuthContext();
 
@@ -56,34 +64,48 @@ function PostForm({ post }: Props) {
         console.log('user not found');
         return;
       }
-      //  TODO: create product login
       let imageUrls = undefined;
       if (imageFiles) {
         imageUrls = await Promise.all(
           [...imageFiles].map((image) => imageUpload(image, user))
         );
-        console.log({ imageUrls });
       }
 
-      await addDoc(collection(db, 'posts'), {
-        userId: user.uid,
-        title,
-        description,
-        category,
-        star,
-        price,
-        imageUrls,
-        timestamp: serverTimestamp(),
-      });
+      if (post) {
+        const updateDocRef = doc(db, 'posts', post.id);
+        await updateDoc(updateDocRef, {
+          title,
+          description,
+          category,
+          star,
+          price,
+          imageUrls: imageUrls
+            ? [...post.imageUrls, ...imageUrls]
+            : [...post.imageUrls],
+        });
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        onEditChange && onEditChange();
+      } else {
+        await addDoc(collection(db, 'posts'), {
+          userId: user.uid,
+          title,
+          description,
+          category,
+          star,
+          price,
+          imageUrls,
+          timestamp: serverTimestamp(),
+        });
+      }
+
       form.reset();
+      fetchAllPosts();
     } catch (error) {
       console.log(error);
     } finally {
       setIsLoading(false);
     }
   };
-
-  console.log(form.getValues('imageFiles'));
 
   return (
     <Card className="max-w-6xl mx-auto mt-4 mb-2">
@@ -98,6 +120,12 @@ function PostForm({ post }: Props) {
             onSubmit={form.handleSubmit(formSubmit)}
             className="flex  items-start justify-between gap-1"
           >
+            <div className="flex items-center justify-center gap-[2px]">
+              {post &&
+                post.imageUrls.map((url) => (
+                  <img key={url} src={url} alt="img err" className="w-7 h-7" />
+                ))}
+            </div>
             <FormField
               control={form.control}
               name="imageFiles"

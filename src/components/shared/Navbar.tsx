@@ -31,8 +31,10 @@ function Navbar() {
           </NavLink>
         ))}
       </div>
-      {user ? (
-        <UserButton user={user} isLoading={isLoading} />
+      {isLoading ? (
+        <p className="text-blue-300">loading...</p>
+      ) : user ? (
+        <UserButton user={user} />
       ) : (
         <div className="flex items-center justify-center gap-2">
           <Button asChild variant="default">

@@ -1,9 +1,9 @@
-import PostForm from '@/components/post/PostForm';
+import PostList from '@/components/post/PostList';
 
 function Post() {
   return (
     <div className="max-w-5xl mx-auto">
-      <PostForm />
+      <PostList />
     </div>
   );
 }

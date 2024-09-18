@@ -12,10 +12,9 @@ import {
 
 type Props = {
   user: User;
-  isLoading: boolean;
 };
 
-function UserButton({ user, isLoading }: Props) {
+function UserButton({ user }: Props) {
   const navigate = useNavigate();
   return (
     <DropdownMenu>
@@ -23,9 +22,7 @@ function UserButton({ user, isLoading }: Props) {
         <Avatar>
           <AvatarImage src="" />
           <AvatarFallback>
-            {isLoading
-              ? '...'
-              : user?.displayName?.slice(0, 2).toUpperCase() || 'UR'}
+            {user?.displayName?.slice(0, 2).toUpperCase() || 'UR'}
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>

@@ -6,6 +6,7 @@ export type RegType = z.infer<typeof RegSchema>;
 export type PostType = z.infer<typeof PostSchema>;
 
 export type Post = {
+  id: string;
   userId: string;
   title: string;
   description: string;

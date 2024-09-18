@@ -5,12 +5,13 @@ function ProtectRoute() {
   const { user, isLoading } = useAuthContext();
   if (isLoading) {
     return <p>Loading...</p>;
+  } else {
+    return user ? (
+      <Outlet />
+    ) : (
+      <Navigate to="/login" state={{ from: location }} />
+    );
   }
-  return user ? (
-    <Outlet />
-  ) : (
-    <Navigate to="/login" state={{ from: location }} />
-  );
 }
 
 export default ProtectRoute;

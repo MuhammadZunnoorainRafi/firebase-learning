@@ -16,18 +16,17 @@ type AuthContext = {
 const AuthContext = createContext<AuthContext | undefined>(undefined);
 
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   useEffect(() => {
-    setIsLoading(true);
     const unsubscribed = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser(user);
       } else {
         setUser(null);
       }
+      setIsLoading(false);
     });
-    setIsLoading(false);
     return () => {
       unsubscribed();
     };
